@@ -10,7 +10,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException,
 import pandas
 from bs4 import BeautifulSoup
 
-print('### DCU Web of Knowledge ###\n### Web Scraper ###')
+print('### Web of Knowledge ###\n### Web Scraper ###')
 
 url_list = []
 add_url = True
