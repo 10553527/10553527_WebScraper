@@ -17,6 +17,7 @@ add_url = True
 delay = 20
 correspondence_list = []
 
+# Credentials and Add URL(s)
 usr = input('Username: ')
 pwd = input('Password: ')
 
@@ -55,7 +56,8 @@ for url in url_list:
         print('Awaiting DUO Authentication...')
 
         sleep(10)
-
+        
+        # MFA
         driver.switch_to.frame(driver.find_element(By.XPATH, '//*[@id="duo_iframe"]'))
 
         try:
@@ -87,6 +89,7 @@ for url in url_list:
 
     sleep(10)
 
+    # Reject Cookies
     try:
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.XPATH,
                                                                            '//*[@id="onetrust-reject-all-handler"]')))
@@ -100,6 +103,7 @@ for url in url_list:
     except NoSuchElementException:
         print('No Element.')
 
+    # Print List of Articles on Page    
     soup = BeautifulSoup(driver.page_source, features='html.parser')
 
     print(soup.prettify())
@@ -116,6 +120,7 @@ for url in url_list:
 
         while count < 50:
 
+            # Wait for Relevant Elements in URL to Load
             try:
                 WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'headerLogo'))
                                                                    )
@@ -132,6 +137,7 @@ for url in url_list:
             except TimeoutException:
                 print('Waiting for Server...')
 
+            # Click the Article Link
             try:
                 elements = driver.find_elements(By.XPATH, '//a[@class="title title-link font-size-18 ng-star-inserted"]'
                                                 )
@@ -144,6 +150,7 @@ for url in url_list:
 
             sleep(5)
 
+            # Find Relevant Elements and Append to correspondence_list as List
             try:
                 author_name = driver.find_element(By.XPATH, '//*[@id="SumAuthTa-FrAuthStandard-author-en-0"]')
                 author_email = driver.find_element(By.XPATH, '//a[@id="AiinTa-AuthRepEmailAddr-0"]')
@@ -160,6 +167,7 @@ for url in url_list:
 
             driver.execute_script("window.history.go(-1)")
 
+        # Go to Next Page     
         try:
             next_page = WebDriverWait(driver, delay).until(EC.element_to_be_clickable((By.XPATH,
                                                                                        '//*[@aria-label="Bottom Next '
@@ -172,6 +180,7 @@ for url in url_list:
 
 print('Scraping Complete! List in PycharmProjects.')
 
+# Create DataFrame from correspondence_list
 df = pandas.DataFrame(correspondence_list, columns=['Name', 'Email', 'Address'])
 df.to_csv('authors.csv', encoding='utf-8', index=False)
 
