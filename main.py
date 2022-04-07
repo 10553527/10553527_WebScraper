@@ -29,7 +29,7 @@ while add_url:
     if user_response == 'Y':
         continue
     elif user_response == 'N':
-        print('Scraping...')
+        print('Scraping.')
         add_url = False
     else:
         print('Incorrect Input Detected... Terminating Application...')
@@ -40,7 +40,7 @@ driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 for url in url_list:
 
     driver.get(url)
-    print('Opening Page...')
+    print('Opening Page.')
 
     sleep(5)
 
@@ -53,7 +53,7 @@ for url in url_list:
 
         login_element = driver.find_element(By.NAME, '_eventId_proceed')
         driver.execute_script('arguments[0].click();', login_element)
-        print('Awaiting DUO Authentication...')
+        print('Awaiting DUO Authentication.')
 
         sleep(10)
         
@@ -71,7 +71,7 @@ for url in url_list:
         except NoSuchElementException:
             print('No Element.')
         except TimeoutException:
-            print('Waiting for Server...')
+            print('Waiting for Server.')
 
         try:
             WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH,
@@ -83,7 +83,7 @@ for url in url_list:
         except NoSuchElementException:
             print('No Element.')
         except TimeoutException:
-            print('Waiting for Server...')
+            print('Waiting for Server.')
     except NoSuchElementException:
         print('See Window... Verification Failed or Not Required.')
 
@@ -97,12 +97,27 @@ for url in url_list:
                                                                        '//*[@id="onetrust-reject-all-handler"]')))
         reject_cookies = driver.find_element(By.XPATH, '//*[@id="onetrust-reject-all-handler"]')
         driver.execute_script("arguments[0].click();", reject_cookies)
-        print('Rejecting Cookies...')
+        print('Rejecting Cookies.')
     except TimeoutException:
         print('Timeout.')
     except NoSuchElementException:
         print('No Element.')
-
+    
+    # Skip Tour
+     try:
+        WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.XPATH,
+                                                                           '//*[@class="bb-button _pendo-button-'
+                                                                           'primaryButton _pendo-button"]')))
+        WebDriverWait(driver, delay).until(EC.element_to_be_clickable((By.XPATH, '//*[@class="bb-button _pendo-button-'
+                                                                                 'primaryButton _pendo-button"]')))
+        skip_tour = driver.find_element(By.XPATH, '//*[@class="bb-button _pendo-button-primaryButton _pendo-button"]')
+        driver.execute_script("arguments[0].click();", skip_tour)
+        print('Skipping Tour.')
+    except TimeoutException:
+        print('Timeout.')
+    except NoSuchElementException:
+        print('No Element.')
+    
     # Print List of Articles on Page    
     soup = BeautifulSoup(driver.page_source, features='html.parser')
 
@@ -127,13 +142,13 @@ for url in url_list:
                 header = driver.find_element(By.XPATH, '//a[@id="headerLogo"]')
                 driver.execute_script("return arguments[0].scrollIntoView(true);", header)
             except TimeoutException:
-                print('Waiting for Server...')
+                print('Waiting for Server.')
 
             try:
                 WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.CLASS_NAME, 'title title-link '
                                                                                                   'font-size-18 ng-star'
                                                                                                   '-inserted')))
-                print('Page is Ready!')
+                print('Page is Ready.')
             except TimeoutException:
                 print('Waiting for Server...')
 
@@ -142,7 +157,7 @@ for url in url_list:
                 elements = driver.find_elements(By.XPATH, '//a[@class="title title-link font-size-18 ng-star-inserted"]'
                                                 )
                 elements[count].click()
-                print('Clicking Link...')
+                print(f'Opening Article {count}.')
             except IndexError:
                 print(f'Index of Last Item in List < {count}.')
                 keep_going = False
@@ -161,7 +176,7 @@ for url in url_list:
             except StaleElementReferenceException:
                 print('Stale Element.')
             except TimeoutException:
-                print('Waiting for Server...')
+                print('Waiting for Server.')
 
             count += 1
 
@@ -173,12 +188,13 @@ for url in url_list:
                                                                                        '//*[@aria-label="Bottom Next '
                                                                                        'Page"]')))
             driver.execute_script('arguments[0].click();', next_page)
+            print('Moving to Next Page')
             count = 0
         except TimeoutException:
             print('End of Journal.')
             keep_going = False
 
-print('Scraping Complete! List in PycharmProjects.')
+print('Scraping Complete! List Stored in PycharmProjects.')
 
 # Create DataFrame from correspondence_list
 df = pandas.DataFrame(correspondence_list, columns=['Name', 'Email', 'Address'])
